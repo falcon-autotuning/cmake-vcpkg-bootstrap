@@ -128,11 +128,14 @@ if(EXISTS "${NUGET_CREDENTIALS_FILE}")
   if(DEFINED FEED_URL AND DEFINED NUGET_API_KEY AND DEFINED FEED_NAME AND DEFINED USERNAME)
     message(STATUS "Setting up NuGet authentication for vcpkg binary caching...")
 
+    # Fetch nuget and capture error
     execute_process(
-      COMMAND "${VCPKG_EXECUTABLE}" fetch nuget
-      OUTPUT_VARIABLE NUGET_EXE
-      OUTPUT_STRIP_TRAILING_WHITESPACE
+    COMMAND "${VCPKG_EXECUTABLE}" fetch nuget
+    OUTPUT_VARIABLE NUGET_FETCH_OUTPUT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
     )
+    string(REGEX REPLACE ".*\n" "" NUGET_EXE "${NUGET_FETCH_OUTPUT}")
+    message(STATUS "==== DEBUG: NUGET_EXE (parsed) = ${NUGET_EXE}")
 
     if(UNIX)
       execute_process(COMMAND mono "${NUGET_EXE}" sources remove -Name "${FEED_NAME}" ERROR_QUIET)
